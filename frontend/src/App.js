@@ -1,48 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import "./App.css";
+import Header from "./components/Header";
+import Home from "./pages/Home";
+import Favorites from "./pages/Favorites";
+import RecipeDetails from "./pages/RecipeDetails";
+import { FavoritesProvider } from "./context/FavoritesContext";
 
 // PUBLIC_INTERFACE
 function App() {
-  const [theme, setTheme] = useState('light');
+  /** Root application component with routing and global providers. */
+  const [query, setQuery] = useState("");
 
-  // Effect to apply theme to document element
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
-
-  // PUBLIC_INTERFACE
-  const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
-  };
+    document.title = process.env.REACT_APP_SITE_NAME || "Recipe Explorer";
+  }, []);
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <button 
-          className="theme-toggle" 
-          onClick={toggleTheme}
-          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-        >
-          {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
-        </button>
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <p>
-          Current theme: <strong>{theme}</strong>
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <FavoritesProvider>
+      <BrowserRouter>
+        <Header query={query} onQueryChange={setQuery} />
+        <div className="rx-container">
+          <Routes>
+            <Route path="/" element={<Home query={query} onQueryChange={setQuery} />} />
+            <Route path="/favorites" element={<Favorites />} />
+            <Route path="/recipe/:id" element={<RecipeDetails />} />
+          </Routes>
+        </div>
+        <footer className="rx-footer">
+          <p>
+            © {new Date().getFullYear()} {process.env.REACT_APP_SITE_NAME || "Recipe Explorer"}
+          </p>
+        </footer>
+      </BrowserRouter>
+    </FavoritesProvider>
   );
 }
 
